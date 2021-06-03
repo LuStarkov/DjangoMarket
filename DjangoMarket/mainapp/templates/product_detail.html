@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class = "mt-3">
+<nav aria-label="breadcrumb" class = "mt-1">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'base' %}">Главная</a></li>
     <li class="breadcrumb-item"><a href="#">{{ product.category.name}}</a></li>
@@ -9,16 +9,22 @@
   </ol>
 </nav>
 <div class="row">
-    <div class="col mb-5">
+    <div class="col mt-1">
         <img src="{{ product.image.url }}" class="img-fluid">
     </div>
-    <div class="col mb-8">
+    <div class="col mt-2">
         <h3>{{ product.title }}</h3>
         <p>Цена: {{ product.price }}</p>
         <p>Описание: {{ product.description }}</p>
-        <p>Характеристики:</p>
+
     </div>
 </div>
+<p class="mt-3">Характеристики:</p>
+{% if product.category.slug == 'notebooks' %}
+    {% include 'notebook_specification.html' %}
+{% else %}
+    {% include 'smartphone_specification.html' %}
+{% endif %}
 
 
 {% endblock content %}
