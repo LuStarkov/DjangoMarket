@@ -123,7 +123,6 @@ class Notebook(Product):
     ram = models.CharField(max_length=255, verbose_name='Оперативная память')
     video = models.CharField(max_length=255, verbose_name='Видеокарта')
     time_without_charge = models.CharField(max_length=255, verbose_name='Время работы аккумулятора')
-
     def __str__(self):
         return "{} : {}".format(self.category.name, self.title)
 
@@ -159,15 +158,18 @@ class CartProduct(models.Model):
     final_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Общая цена')
 
     def __str__(self):
-        return "Продукт: {} (для корзины)".format(self.product.title)
+        return "Продукт: {} (для корзины)".format(self.content_object.title)
 
+    def save(self, *args, **kwargs):
+        self.final_price = self.qty * self.content_object.price
+        super().save(*args, **kwargs)
 
 class Cart(models.Model):
 
-    owner = models.ForeignKey('Customer', verbose_name='Владелец', on_delete=models.CASCADE)
+    owner = models.ForeignKey('Customer', null=True, verbose_name='Владелец', on_delete=models.CASCADE)
     product = models.ManyToManyField(CartProduct, blank=True, related_name='related_cart')
     total_products = models.PositiveIntegerField(default=0)  # показывать корректное кол-во товаров в корзине
-    final_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Общая цена')
+    final_price = models.DecimalField(max_digits=9, default=0, decimal_places=2, verbose_name='Общая цена')
     in_order = models.BooleanField(default=False)
     for_anonymous_user = models.BooleanField(default=False)
 
@@ -175,14 +177,17 @@ class Cart(models.Model):
         return str(self.id)
 
 
+
 class Customer(models.Model):
 
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
-    phone = models.CharField(max_length=20, verbose_name='Номер телефона')
-    address = models.CharField(max_length=2, verbose_name='Адрес')
+    phone = models.CharField(max_length=20, verbose_name='Номер телефона', null=True, blank=True)
+    address = models.CharField(max_length=2, verbose_name='Адрес', null=True, blank=True)
 
     def __str__(self):
         return "Покупатель: {} {}".format(self.user.first_name, self.user.last_name)
+
+
 
 
 
